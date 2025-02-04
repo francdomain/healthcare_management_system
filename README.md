@@ -150,3 +150,18 @@ You might need to set up environment variables or configure specific settings ba
 Ensure your MongoDB database is running and properly connected if your project uses MongoDB.
 
 For detailed API documentation, refer to the API documentation section (if available) in your project.
+
+
+
+
+
+
+
+
+<!-- wget https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -O rds-combined-ca-bundle.pem -->
+
+<!-- /* The error “MongoParseError: option sslca is not supported” suggests that the MongoDB driver version you are using does not recognize the sslCA option. This issue is usually caused by an outdated or incompatible MongoDB Node.js driver.
+sslCA is deprecated → Use tlsCAFile instead. */ -->
+
+<!-- Generate jwt
+openssl rand -hex 32 -->

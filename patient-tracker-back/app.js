@@ -8,17 +8,31 @@ const appointmentRoutes = require('./routes/appointmentRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 const patientHealthMetricsRoutes = require('./routes/patientHealthMetricsRoutes');
 const { verifyToken } = require('./jwt-middleware');
+const fs = require('fs');
+const path = require('path');
 
 
 const app = express();
 app.use(bodyParser.json());
-app.use(cors({ origin: 'https://patient-tracker.netlify.app' })); 
+app.use(cors({ origin: 'https://patient-tracker.netlify.app' }));
 
 
-// MongoDB Connection
-mongoose.connect(`mongodb+srv://sudharshan:${process.env.MONGO_PWD}@patient-tracker-codecel.5vzdhw8.mongodb.net/patient_data?retryWrites=true&w=majority`);
-mongoose.connection.on('connected', () => console.log('Connected to MongoDB'));
-mongoose.connection.on('error', (err) => console.log('Error connecting to MongoDB:', err));
+const ca = fs.readFileSync(path.join(__dirname, 'rds-combined-ca-bundle.pem'));
+
+// Amazon DocumentDB Connection
+const docDbUri = `mongodb://${process.env.DOCDB_USER}:${process.env.DOCDB_PWD}@${process.env.DOCDB_HOST}:27017/${process.env.DOCDB_DATABASE}?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
+
+mongoose.connect(docDbUri, {
+  tls: true,
+  tlsCAFile: path.join(__dirname, 'rds-combined-ca-bundle.pem'),
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 30000
+}).then(() => {
+  console.log('✅ Connected to Amazon DocumentDB');
+}).catch((err) => {
+  console.log('❌ Error connecting to Amazon DocumentDB:', err);
+});
 
 app.use('/api/doctors', doctorRoutes);
 app.use(verifyToken)
